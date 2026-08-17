@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cantoral Litúrgico Digital</title>
+    <!-- Tailwind CSS desde el dominio permitido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts para una tipografía Sacra y Elegante -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Lora', 'serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .lyrics-line {
+            line-height: 1.8;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans antialiased min-h-screen transition-colors duration-300 dark:bg-stone-950 dark:text-stone-100">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="max-w-md mx-auto min-h-screen flex flex-col shadow-xl bg-white dark:bg-stone-900 border-x border-stone-200/50 dark:border-stone-800/50">
+        
+        <!-- CABECERA FIJA -->
+        <header class="sticky top-0 z-40 bg-stone-100/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 px-4 py-3 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m-5-12h10" />
+                    </svg>
+                    <div>
+                        <h1 class="font-serif font-bold text-lg text-stone-800 dark:text-white leading-tight">Cantoral Parroquial</h1>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">Comunidad Litúrgica Digital</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleQRModal(true)" class="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400" title="Información del QR">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 14.25v2.25M16.5 13.5v3M13.5 19.5h3M19.5 13.5v6M19.5 16.5h-3" />
+                        </svg>
+                    </button>
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400" title="Cambiar Modo de Luz">
+                        <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z" />
+                        </svg>
+                        <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Buscador -->
+            <div class="relative">
+                <input type="text" id="search-bar" oninput="filterSongs()" placeholder="Buscar canto por título o palabra..." 
+                    class="w-full bg-stone-200/60 dark:bg-stone-800 border-0 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-stone-900 dark:text-white placeholder-stone-500 dark:placeholder-stone-400">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-stone-500 dark:text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Pestañas Filtro -->
+            <div id="filter-tabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs font-medium">
+                <button onclick="setActiveFilter('todos')" id="tab-todos" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-amber-600 text-white shadow-sm transition">Todos</button>
+                <button onclick="setActiveFilter('Entrada')" id="tab-Entrada" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Entrada</button>
+                <button onclick="setActiveFilter('Piedad')" id="tab-Piedad" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Piedad</button>
+                <button onclick="setActiveFilter('Gloria')" id="tab-Gloria" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Gloria</button>
+                <button onclick="setActiveFilter('Ofertorio')" id="tab-Ofertorio" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Ofertorio</button>
+                <button onclick="setActiveFilter('Santo')" id="tab-Santo" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Santo</button>
+                <button onclick="setActiveFilter('Paz')" id="tab-Paz" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Paz</button>
+                <button onclick="setActiveFilter('Comunión')" id="tab-Comunión" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Comunión</button>
+                <button onclick="setActiveFilter('Salida')" id="tab-Salida" class="px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition">Salida</button>
+            </div>
+        </header>
+
+        <!-- SECCIÓN DE CONTENIDO PRINCIPAL -->
+        <main class="flex-1 p-4 overflow-y-auto">
+            <div id="songs-container" class="space-y-3"></div>
+            
+            <div id="empty-state" class="hidden text-center py-12 text-stone-500 dark:text-stone-400">
+                <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <p class="font-medium">No se encontraron cantos</p>
+                <p class="text-xs mt-1">Prueba refinando la búsqueda o el filtro.</p>
+            </div>
+        </main>
+
+        <!-- VISTA DE LECTURA DE CANTO -->
+        <div id="reader-view" class="fixed inset-0 z-50 bg-stone-50 dark:bg-stone-950 flex-col hidden max-w-md mx-auto border-x border-stone-200 dark:border-stone-800">
+            <div class="px-4 py-3 bg-stone-100 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between">
+                <button onclick="closeReader()" class="flex items-center gap-1 text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-amber-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                    <span>Volver</span>
+                </button>
+                
+                <div class="flex items-center bg-stone-200/70 dark:bg-stone-800 rounded-lg p-0.5">
+                    <button onclick="adjustFontSize(-2)" class="px-2.5 py-1 text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 rounded-md transition">A-</button>
+                    <div class="w-px h-3 bg-stone-300 dark:bg-stone-700"></div>
+                    <button onclick="adjustFontSize(2)" class="px-2.5 py-1 text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 rounded-md transition">A+</button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto px-6 py-8 text-center no-scrollbar">
+                <span id="reader-category" class="inline-block text-xs font-semibold tracking-wider uppercase bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1 rounded-full mb-3">Momento</span>
+                <h2 id="reader-title" class="font-serif font-bold text-2xl mb-6 text-stone-800 dark:text-white">Título del Canto</h2>
+                <div id="reader-lyrics" class="font-serif text-lg text-stone-700 dark:text-stone-200 whitespace-pre-line lyrics-line select-none italic max-w-xs mx-auto"></div>
+                <div class="h-16"></div>
+            </div>
+            
+            <div class="py-2 text-center text-[10px] text-stone-400 bg-stone-100/50 dark:bg-stone-900/50 border-t border-stone-200/50 dark:border-stone-800/50">
+                Modo lectura activo • Pantalla optimizada para el templo
+            </div>
+        </div>
+
+        <!-- MODAL DE INFORMACIÓN QR -->
+        <div id="qr-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+            <div class="bg-white dark:bg-stone-900 rounded-2xl w-full max-w-xs p-5 text-center shadow-2xl border border-stone-200 dark:border-stone-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-serif font-bold text-lg text-stone-800 dark:text-white">Acceso al Cantoral</h3>
+                    <button onclick="toggleQRModal(false)" class="p-1 rounded-full text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="bg-stone-50 p-4 rounded-xl inline-block mb-3 border border-stone-100">
+                    <svg class="w-40 h-40 mx-auto text-stone-900" viewBox="0 0 29 29" fill="currentColor">
+                        <path d="M0 0h7v7H0zm1 1v5h5V1zm1 1h3v3H2z"/>
+                        <path d="M22 0h7v7h-7zm1 1v5h5V1zm1 1h3v3H24z"/>
+                        <path d="M0 22h7v7H0zm1 1v5h5v-5zm1 1h3v3H2z"/>
+                        <path d="M9 1h1v2H9zm3 0h2v1h-2zm4 0h3v1h-3zm1 2h2v1h-2zm-5 2h1v3h-1zm3 0h1v1h-1zm2 1h1v1h-1zm-6 2h2v1H9zm5 0h1v2h-1zm4 1h2v1h-2zM9 11h2v1H9zm4 0h1v1h-1zm3 0h4v1h-4zm5 0h2v2h-2zm-9 2h2v1h-2zm4 0h1v2h-1zm3 1h1v3h-1zm-7 2h1v1h-1zm4 0h2v1h-2zm-6 2h1v2h-1zm3 0h2v1h-2zm5 0h1v1h-1zm4 0h3v1h-3zm-9 2h1v3h-1zm3 1h2v1h-2zm5 0h1v2h-1zm2 1h2v1h-2z"/>
+                    </svg>
+                </div>
+                
+                <p class="text-xs text-stone-600 dark:text-stone-400 mb-4 px-2">
+                    Vincula la URL final de esta página a un código QR impreso en los bancos o proyectado en la entrada de la iglesia para que los fieles accedan instantáneamente.
+                </p>
+                
+                <button onclick="toggleQRModal(false)" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 rounded-xl text-sm transition">
+                    Entendido
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGICA SCRIPT DEL CANTORAL -->
+    <script>
+        // BASE DE DATOS LOCAL DE CANTOS INTEGRADA
+        const cantosData = [
+            {
+                id: 1,
+                titulo: "Juntos Como Hermanos",
+                categoria: "Entrada",
+                letra: `Juntos como hermanos,\nmiembros de una Iglesia,\nvamos caminando,\nal encuentro del Señor.\n\nUn largo caminar,\npor el desierto bajo el sol,\nno podemos avanzar\nsin la ayuda del Señor.\n\nUnidos al rezar,\nunidos en una canción,\nviviremos nuestra fe\ncon la ayuda del Señor.`
+            },
+            {
+                id: 2,
+                titulo: "Vienen con Alegría",
+                categoria: "Entrada",
+                letra: `Vienen con alegría, Señor,\ncantando vienen con alegría, Señor,\nlos que caminan por la vida, Señor,\nsembrando tu paz y amor.\n\nVienen trayendo la esperanza\na un mundo cargado de ansiedad,\nun mundo que busca y que no encuentra\nvías de amor y de amistad.`
+            },
+            {
+                id: 3,
+                titulo: "Señor Ten Piedad",
+                categoria: "Piedad",
+                letra: `Señor, ten piedad de nosotros,\nSeñor, ten piedad de nosotros.\n\nCristo, ten piedad de nosotros,\nCristo, ten piedad de nosotros.\n\nSeñor, ten piedad de nosotros,\nSeñor, ten piedad de nosotros.`
+            },
+            {
+                id: 4,
+                titulo: "Gloria a Dios en el Cielo",
+                categoria: "Gloria",
+                letra: `Gloria a Dios en el cielo,\ny en la tierra paz a los hombres\nque ama el Señor.\n\nPor tu inmensa gloria te alabamos,\nte bendecimos, te adoramos,\nte glorificamos, te damos gracias,\nSeñor Dios, Rey celestial.`
+            },
+            {
+                id: 5,
+                titulo: "Te Presentamos el Vino y el Pan",
+                categoria: "Ofertorio",
+                letra: `Te presentamos el vino y el pan,\nbendito seas por siempre, Señor.\n\nBendito seas, Señor,\npor este pan que nos diste,\nfruto de la tierra y del trabajo\nde los hombres.\n\nBendito seas, Señor,\npor este vino que nos diste,\nfruto de la vid y del trabajo\nde los hombres.`
+            },
+            {
+                id: 6,
+                titulo: "Santo es el Señor",
+                categoria: "Santo",
+                letra: `Santo, Santo, Santo es el Señor,\nDios del universo.\nLlenos están el cielo y la tierra\nde tu gloria.\n\nHosanna en el cielo.\nBendito el que viene\nen nombre del Señor.\nHosanna en el cielo.`
+            },
+            {
+                id: 7,
+                titulo: "Cordero de Dios",
+                categoria: "Paz",
+                letra: `Cordero de Dios, que quitas\nel pecado del mundo,\nten piedad de nosotros.\n\nCordero de Dios, que quitas\nel pecado del mundo,\nten piedad de nosotros.\n\nCordero de Dios, que quitas\nel pecado del mundo,\ndanos la paz.`
+            },
+            {
+                id: 8,
+                titulo: "Pescador de Hombres",
+                categoria: "Comunión",
+                letra: `Tú has venido a la orilla,\nno has buscado ni a sabios ni a ricos,\ntan solo quieres que yo te siga.\n\nSeñor, me has mirado a los ojos,\nsonriendo has dicho mi nombre,\nen la arena he dejado mi barca,\njunto a Ti buscaré otro mar.\n\nTú necesitas mis manos,\nmi cansancio que a otros descanse,\namor que quiera seguir amando.`
+            },
+            {
+                id: 9,
+                titulo: "Milagro de Amor",
+                categoria: "Comunión",
+                letra: `Jesús aquí presente en forma real,\nte pido un poco más de fe y de humildad.\nQuisiera poder ser digno de compartir\ncontigo el milagro de amor.\n\nMilagro de amor tan infinito,\nen que Tú, mi Dios, te has hecho\ntan pequeño y tan humilde\npara entrar en mí.`
+            },
+            {
+                id: 10,
+                titulo: "Hoy te Quiero Cantar",
+                categoria: "Salida",
+                letra: `Hoy te quiero cantar, hoy te quiero rezar,\nMadre mía del cielo.\nSi en mi alma hay dolor, busco apoyo en tu amor\ny hallo en ti mi consuelo.\n\nHoy te quiero cantar, hoy te quiero rezar,\nmi plegaria es canción.\nYo te quiero ofrecer lo más bello de mí:\nmi entero corazón.`
+            }
+        ];
+
+        let currentFilter = 'todos';
+        let currentFontSize = 18;
+
+        function renderSongs(data) {
+            const container = document.getElementById('songs-container');
+            const emptyState = document.getElementById('empty-state');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (data.length === 0) {
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+            if (emptyState) emptyState.classList.add('hidden');
+
+            data.forEach(function(canto) {
+                const card = document.createElement('div');
+                card.className = "bg-stone-50 dark:bg-stone-800/40 p-4 rounded-xl border border-stone-200/60 dark:border-stone-800 flex items-center justify-between active:scale-[0.99] transition cursor-pointer hover:border-amber-500/50";
+                card.onclick = function() { openReader(canto.id); };
+                
+                const primerLinea = canto.letra.split('\n')[0] || '';
+                
+                card.innerHTML = `
+                    <div class="flex-1 pr-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block mb-0.5">${canto.categoria}</span>
+                        <h3 class="font-serif font-semibold text-base text-stone-800 dark:text-stone-100">${canto.titulo}</h3>
+                        <p class="text-xs text-stone-500 dark:text-stone-400 line-clamp-1 mt-0.5">${primerLinea}...</p>
+                    </div>
+                    <div class="text-stone-400 dark:text-stone-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSongs() {
+            const searchInput = document.getElementById('search-bar');
+            const query = searchInput ? searchInput.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+            
+            const filtered = cantosData.filter(function(canto) {
+                const matchFilter = (currentFilter === 'todos' || canto.categoria === currentFilter);
+                
+                const normTitulo = canto.titulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const normLetra = canto.letra.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const matchQuery = normTitulo.includes(query) || normLetra.includes(query);
+                
+                return matchFilter && matchQuery;
+            });
+            
+            renderSongs(filtered);
+        }
+
+        function setActiveFilter(filter) {
+            currentFilter = filter;
+            
+            const tabs = document.querySelectorAll('#filter-tabs button');
+            tabs.forEach(function(tab) {
+                if (tab.id === `tab-${filter}`) {
+                    tab.className = "px-3.5 py-1.5 rounded-full whitespace-nowrap bg-amber-600 text-white shadow-sm transition";
+                } else {
+                    tab.className = "px-3.5 py-1.5 rounded-full whitespace-nowrap bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition";
+                }
+            });
+            
+            filterSongs();
+        }
+
+        function openReader(id) {
+            const canto = cantosData.find(function(c) { return c.id === id; });
+            if (!canto) return;
+
+            document.getElementById('reader-title').innerText = canto.titulo;
+            document.getElementById('reader-category').innerText = canto.categoria;
+            document.getElementById('reader-lyrics').innerText = canto.letra;
+            
+            const reader = document.getElementById('reader-view');
+            if (reader) {
+                reader.classList.remove('hidden');
+                reader.classList.add('flex');
+            }
+        }
+
+        function closeReader() {
+            const reader = document.getElementById('reader-view');
+            if (reader) {
+                reader.classList.remove('flex');
+                reader.classList.add('hidden');
+            }
+        }
+
+        function adjustFontSize(delta) {
+            currentFontSize = Math.max(14, Math.min(32, currentFontSize + delta));
+            const lyricsEl = document.getElementById('reader-lyrics');
+            if (lyricsEl) {
+                lyricsEl.style.fontSize = `${currentFontSize}px`;
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const iconLight = document.getElementById('theme-icon-light');
+            const iconDark = document.getElementById('theme-icon-dark');
+            if (!html) return;
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                if (iconLight) iconLight.classList.add('hidden');
+                if (iconDark) iconDark.classList.remove('hidden');
+            } else {
+                html.classList.add('dark');
+                if (iconLight) iconLight.classList.remove('hidden');
+                if (iconDark) iconDark.classList.add('hidden');
+            }
+        }
+
+        function toggleQRModal(show) {
+            const modal = document.getElementById('qr-modal');
+            if (!modal) return;
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        window.onload = function() {
+            renderSongs(cantosData);
+            const lyricsEl = document.getElementById('reader-lyrics');
+            if (lyricsEl) {
+                lyricsEl.style.fontSize = `${currentFontSize}px`;
+            }
+        };
+    </script>
+</body>
+</html>
